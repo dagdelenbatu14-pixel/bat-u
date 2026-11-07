@@ -207,7 +207,8 @@ if (renderer) {
     const wide = innerWidth / innerHeight >= 0.8;
     const sx = wide ? 1.55 : 0;
     const x = THREE.MathUtils.lerp(side(i) * sx, side(i + 1) * sx, turn);
-    const ry = wide
+    // with Reduce Motion the phone stays facing forward and only its screen changes
+    const ry = still ? (wide ? -side(k) * 0.32 : 0) : wide
       ? (i + turn) * Math.PI * 2 - side(k) * 0.32 + state.mx * 0.35
       : Math.sin(turn * Math.PI) * (Math.PI / 2) * (i % 2 ? -1 : 1) + Math.sin(clock * 0.45) * 0.22;
     const endK = ease(state.end);

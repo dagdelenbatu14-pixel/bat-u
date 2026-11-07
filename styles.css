@@ -124,11 +124,9 @@ details p { padding: 0 0 18px; max-width: 46em; color: var(--muted); }
 .no-3d .tour-stage { position: static; height: auto; padding: 120px 0 40px; }
 .no-3d .ch { position: relative; inset: auto; width: auto; max-width: 720px; margin: 0 var(--m) 96px; opacity: 1; visibility: visible; transform: none; }
 .no-3d .ch[data-side="-1"] { right: auto; }
+/* Reduce Motion keeps the tour (it moves only as the visitor scrolls) but drops every transition */
 @media (prefers-reduced-motion: reduce) {
-  .tour { height: auto; }
-  .tour-stage { position: static; height: auto; padding: 120px 0 40px; }
-  .ch, .ch[data-side="-1"], .hero { position: relative; inset: auto; width: auto; max-width: 720px; margin: 0 var(--m) 96px; opacity: 1; visibility: visible; transform: none; transition: none; }
-  .btn, .ghost { transition: none; }
+  .ch, .ch[data-side="-1"], .hero, .btn, .ghost { transition: none; }
 }
 
 @media (max-width: 900px) {

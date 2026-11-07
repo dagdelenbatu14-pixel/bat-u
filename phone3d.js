@@ -165,7 +165,7 @@ if (renderer) {
     composer.addPass(new OutputPass());
   }
 
-  // sized from the canvas box (100svh on phones), so a browser toolbar sliding in and out changes nothing
+  // sized from the canvas box (100svh), so a browser toolbar sliding in and out changes nothing
   let lastW = 0, lastH = 0;
   function resize() {
     const w = canvas.clientWidth || innerWidth, h = canvas.clientHeight || innerHeight;
@@ -207,7 +207,9 @@ if (renderer) {
     const wide = innerWidth / innerHeight >= 0.8;
     const sx = wide ? 1.55 : 0;
     const x = THREE.MathUtils.lerp(side(i) * sx, side(i + 1) * sx, turn);
-    const ry = (i + turn) * Math.PI * 2 - side(k) * 0.32 + state.mx * 0.35 + (small ? Math.sin(clock * 0.45) * 0.35 : 0);
+    const ry = wide
+      ? (i + turn) * Math.PI * 2 - side(k) * 0.32 + state.mx * 0.35
+      : Math.sin(turn * Math.PI) * (Math.PI / 2) * (i % 2 ? -1 : 1) + Math.sin(clock * 0.45) * 0.22;
     const endK = ease(state.end);
     cur.x += ((x * (1 - endK) + (wide ? 1.9 : 0) * endK) - cur.x) * (still ? 1 : 1 - Math.exp(-dt * 6));
     cur.ry += (ry - cur.ry) * (still ? 1 : 1 - Math.exp(-dt * 6));

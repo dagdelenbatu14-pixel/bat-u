@@ -165,8 +165,12 @@ if (renderer) {
     composer.addPass(new OutputPass());
   }
 
+  // sized from the canvas box (100svh on phones), so a browser toolbar sliding in and out changes nothing
+  let lastW = 0, lastH = 0;
   function resize() {
-    const w = innerWidth, h = innerHeight;
+    const w = canvas.clientWidth || innerWidth, h = canvas.clientHeight || innerHeight;
+    if (w === lastW && Math.abs(h - lastH) < 2) return;
+    lastW = w; lastH = h;
     renderer.setSize(w, h, false);
     if (composer) composer.setSize(w, h);
     camera.aspect = w / h;
@@ -203,17 +207,18 @@ if (renderer) {
     const wide = innerWidth / innerHeight >= 0.8;
     const sx = wide ? 1.55 : 0;
     const x = THREE.MathUtils.lerp(side(i) * sx, side(i + 1) * sx, turn);
-    const ry = (i + turn) * Math.PI * 2 - side(k) * 0.32 + state.mx * 0.35;
+    const ry = (i + turn) * Math.PI * 2 - side(k) * 0.32 + state.mx * 0.35 + (small ? Math.sin(clock * 0.45) * 0.35 : 0);
     const endK = ease(state.end);
     cur.x += ((x * (1 - endK) + (wide ? 1.9 : 0) * endK) - cur.x) * (still ? 1 : 1 - Math.exp(-dt * 6));
     cur.ry += (ry - cur.ry) * (still ? 1 : 1 - Math.exp(-dt * 6));
     // On a tall screen the phone fits the free band between the top bar and the card under it.
     let ty = 0, ts = 1;
     if (!wide) {
-      const perUnit = innerHeight / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z);
-      const top = state.bandTop || 80, bottom = Math.max(top + 160, state.bandBottom || innerHeight * 0.5);
+      const vh = canvas.clientHeight || innerHeight;
+      const perUnit = vh / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z);
+      const top = state.bandTop || 80, bottom = Math.max(top + 160, state.bandBottom || vh * 0.5);
       ts = Math.min(1.5, ((bottom - top) * 0.93) / (H * perUnit));
-      ty = (innerHeight / 2 - (top + bottom) / 2) / perUnit;
+      ty = (vh / 2 - (top + bottom) / 2) / perUnit;
     }
     const kk = still || !cur.ok ? 1 : 1 - Math.exp(-dt * 5);
     cur.y += (ty - cur.y) * kk; cur.s += (ts - cur.s) * kk; cur.ok = true;

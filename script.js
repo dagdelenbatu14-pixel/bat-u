@@ -6,6 +6,26 @@
   const bar = document.querySelector('.bar');
   const endBody = end.querySelector('.end-body');
   const N = chs.length;
+  // On a phone the tour is a plain stack of cards: in-app browsers (Instagram, WhatsApp) resize the
+  // viewport while scrolling, which makes a pinned, scroll-turned 3D phone jump. Only the opening keeps it.
+  const mobile = matchMedia('(max-width: 767px)');
+  const hero = chs[0];
+
+  // Every card also carries a framed screen of its own, shown only on phones.
+  const frame = (src) => {
+    const f = document.createElement('figure');
+    f.className = 'mphone';
+    f.setAttribute('aria-hidden', 'true');
+    const m = src.endsWith('.mp4')
+      ? Object.assign(document.createElement('video'), { src, poster: src.replace(/\.mp4$/, '.jpg'), muted: true, loop: true, autoplay: true, playsInline: true, preload: 'metadata' })
+      : Object.assign(document.createElement('img'), { src, alt: '', decoding: 'async' });
+    if (m.tagName === 'VIDEO') { m.setAttribute('playsinline', ''); m.setAttribute('muted', ''); }
+    else m.className = 'tall';
+    f.append(m);
+    return f;
+  };
+  chs.slice(1).forEach((c) => c.prepend(frame(c.dataset.screen)));
+  end.querySelector('.end-body').prepend(frame(end.dataset.screen));
 
   // The 3D phone reads this: one chapter per card, plus where the phone stands and what its screen shows.
   const state = window.batu || (window.batu = {});
@@ -14,7 +34,7 @@
     endScreen: end.dataset.screen, i: 0, f: 0, turn: 0, dwell: 0, end: 0, mx: 0, my: 0,
   });
 
-  if (window.Lenis && !reduced.matches) {
+  if (window.Lenis && !reduced.matches && !mobile.matches) {
     const lenis = new Lenis({ lerp: 0.085 });
     const raf = (t) => { lenis.raf(t); requestAnimationFrame(raf); };
     requestAnimationFrame(raf);
@@ -32,6 +52,16 @@
   let shown = -2;
   function measure() {
     const y = scrollY, vh = innerHeight;
+    if (mobile.matches) {
+      Object.assign(state, { i: 0, f: 0, dwell: 0, turn: 0, end: 0 });
+      if (shown !== 'all') { shown = 'all'; chs.forEach((c) => c.classList.add('on')); }
+      // the canvas sits at the top of the page, so the band is measured in page coordinates
+      state.bandTop = bar.offsetHeight + 18;
+      state.bandBottom = hero.offsetTop + hero.querySelector('h1').offsetTop - 8;
+      if (state.setRunning) state.setRunning(y < hero.offsetHeight);
+      return;
+    }
+    if (shown === 'all') { shown = -2; chs.forEach((c) => c.classList.remove('on')); }
     const p = Math.min(1, Math.max(0, (y - tour.offsetTop) / (tour.offsetHeight - vh)));
     const s = p * (N - 0.25), i = Math.min(N - 1, Math.floor(s)), f = s - i;
     state.i = i; state.f = f;
@@ -58,6 +88,7 @@
   let ticking = false;
   addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(() => { ticking = false; measure(); }); } }, { passive: true });
   addEventListener('resize', measure);
+  mobile.addEventListener('change', () => location.reload());
   addEventListener('batu3d', measure);
   measure();
 

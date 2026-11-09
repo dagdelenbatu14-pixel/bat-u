@@ -66,7 +66,7 @@ if (renderer) {
   const screenMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(1.12, 1.12, 1.12), toneMapped: false });
   const screen = new THREE.Mesh(rounded(SW, SH, R - 0.06), screenMat);
   screen.position.z = D / 2 + 0.002;
-  const island = new THREE.Mesh(new RoundedBoxGeometry(0.34, 0.1, 0.005, 4, 0.05), new THREE.MeshBasicMaterial({ color: '#000' }));
+  const island = new THREE.Mesh(rounded(0.34, 0.1, 0.05), new THREE.MeshBasicMaterial({ color: '#000' }));
   island.position.set(0, SH / 2 - 0.11, D / 2 + 0.004);
   const sheen = new THREE.Mesh(rounded(W - 0.03, H - 0.03, R - 0.015), new THREE.MeshPhysicalMaterial({ color: '#ffffff', roughness: 0.04, metalness: 0, transparent: true, opacity: 0.03, envMapIntensity: 2.5, depthWrite: false }));
   sheen.position.z = D / 2 + 0.006;
